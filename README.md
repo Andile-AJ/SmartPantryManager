@@ -27,6 +27,8 @@ A recipe is only suggested when every required ingredient is available in the us
 - Input validation
 - Persistent local data storage
 - Persistent settings using SharedPreferences
+- Expiry-soon and expired ingredient warnings
+- Calender date picker for ingredient expiry dates
 
 ## Strict Recipe Matching
 

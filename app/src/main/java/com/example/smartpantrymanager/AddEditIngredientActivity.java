@@ -1,5 +1,6 @@
 package com.example.smartpantrymanager;
 
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -8,12 +9,16 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.Calendar;
+import java.util.Locale;
+
 public class AddEditIngredientActivity extends AppCompatActivity {
 
     private EditText etIngredientName;
     private EditText etQuantity;
     private EditText etUnit;
     private EditText etExpiryDate;
+
     private Button btnSaveIngredient;
     private TextView tvFormTitle;
 
@@ -26,124 +31,241 @@ public class AddEditIngredientActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_edit_ingredient);
 
-        tvFormTitle = findViewById(R.id.tvFormTitle);
-        etIngredientName = findViewById(R.id.etIngredientName);
-        etQuantity = findViewById(R.id.etQuantity);
-        etUnit = findViewById(R.id.etUnit);
-        etExpiryDate = findViewById(R.id.etExpiryDate);
-        btnSaveIngredient = findViewById(R.id.btnSaveIngredient);
+        tvFormTitle =
+                findViewById(R.id.tvFormTitle);
 
-        databaseHelper = new DatabaseHelper(this);
+        etIngredientName =
+                findViewById(R.id.etIngredientName);
 
-        // Check if this screen was opened for editing
+        etQuantity =
+                findViewById(R.id.etQuantity);
+
+        etUnit =
+                findViewById(R.id.etUnit);
+
+        etExpiryDate =
+                findViewById(R.id.etExpiryDate);
+
+        btnSaveIngredient =
+                findViewById(R.id.btnSaveIngredient);
+
+        databaseHelper =
+                new DatabaseHelper(this);
+
+        // Open date picker when expiry field is tapped
+        etExpiryDate.setOnClickListener(v ->
+                showDatePicker()
+        );
+
+        // Check whether screen is being used for editing
         if (getIntent().hasExtra("ingredient_id")) {
 
-            ingredientId = getIntent().getIntExtra(
-                    "ingredient_id",
-                    -1
+            ingredientId =
+                    getIntent().getIntExtra(
+                            "ingredient_id",
+                            -1
+                    );
+
+            String name =
+                    getIntent().getStringExtra(
+                            "ingredient_name"
+                    );
+
+            double quantity =
+                    getIntent().getDoubleExtra(
+                            "ingredient_quantity",
+                            0
+                    );
+
+            String unit =
+                    getIntent().getStringExtra(
+                            "ingredient_unit"
+                    );
+
+            String expiry =
+                    getIntent().getStringExtra(
+                            "ingredient_expiry"
+                    );
+
+            tvFormTitle.setText(
+                    "Edit Ingredient"
             );
 
-            String name = getIntent().getStringExtra(
-                    "ingredient_name"
+            btnSaveIngredient.setText(
+                    "Update Ingredient"
             );
 
-            double quantity = getIntent().getDoubleExtra(
-                    "ingredient_quantity",
-                    0
+            etIngredientName.setText(
+                    name
             );
 
-            String unit = getIntent().getStringExtra(
-                    "ingredient_unit"
+            etQuantity.setText(
+                    String.valueOf(quantity)
             );
 
-            String expiry = getIntent().getStringExtra(
-                    "ingredient_expiry"
+            etUnit.setText(
+                    unit
             );
 
-            tvFormTitle.setText("Edit Ingredient");
-            btnSaveIngredient.setText("Update Ingredient");
-
-            etIngredientName.setText(name);
-            etQuantity.setText(String.valueOf(quantity));
-            etUnit.setText(unit);
-            etExpiryDate.setText(expiry);
+            etExpiryDate.setText(
+                    expiry
+            );
         }
 
-        btnSaveIngredient.setOnClickListener(v -> saveIngredient());
+        btnSaveIngredient.setOnClickListener(
+                v -> saveIngredient()
+        );
+    }
+
+    private void showDatePicker() {
+
+        Calendar calendar =
+                Calendar.getInstance();
+
+        int year =
+                calendar.get(
+                        Calendar.YEAR
+                );
+
+        int month =
+                calendar.get(
+                        Calendar.MONTH
+                );
+
+        int day =
+                calendar.get(
+                        Calendar.DAY_OF_MONTH
+                );
+
+        DatePickerDialog datePickerDialog =
+                new DatePickerDialog(
+                        this,
+                        (view, selectedYear,
+                         selectedMonth,
+                         selectedDay) -> {
+
+                            String selectedDate =
+                                    String.format(
+                                            Locale.getDefault(),
+                                            "%02d/%02d/%04d",
+                                            selectedDay,
+                                            selectedMonth + 1,
+                                            selectedYear
+                                    );
+
+                            etExpiryDate.setText(
+                                    selectedDate
+                            );
+                        },
+                        year,
+                        month,
+                        day
+                );
+
+        datePickerDialog.show();
     }
 
     private void saveIngredient() {
 
-        String name = etIngredientName.getText()
-                .toString()
-                .trim();
+        String name =
+                etIngredientName
+                        .getText()
+                        .toString()
+                        .trim();
 
-        String quantityText = etQuantity.getText()
-                .toString()
-                .trim();
+        String quantityText =
+                etQuantity
+                        .getText()
+                        .toString()
+                        .trim();
 
-        String unit = etUnit.getText()
-                .toString()
-                .trim();
+        String unit =
+                etUnit
+                        .getText()
+                        .toString()
+                        .trim();
 
-        String expiryDate = etExpiryDate.getText()
-                .toString()
-                .trim();
+        String expiryDate =
+                etExpiryDate
+                        .getText()
+                        .toString()
+                        .trim();
 
         if (name.isEmpty()) {
+
             etIngredientName.setError(
                     "Ingredient name is required"
             );
+
             etIngredientName.requestFocus();
+
             return;
         }
 
         if (quantityText.isEmpty()) {
+
             etQuantity.setError(
                     "Quantity is required"
             );
+
             etQuantity.requestFocus();
+
             return;
         }
 
         if (unit.isEmpty()) {
+
             etUnit.setError(
                     "Unit is required"
             );
+
             etUnit.requestFocus();
+
             return;
         }
 
         double quantity;
 
         try {
-            quantity = Double.parseDouble(quantityText);
+
+            quantity =
+                    Double.parseDouble(
+                            quantityText
+                    );
+
         } catch (NumberFormatException e) {
+
             etQuantity.setError(
                     "Enter a valid quantity"
             );
+
             etQuantity.requestFocus();
+
             return;
         }
 
         if (quantity <= 0) {
+
             etQuantity.setError(
                     "Quantity must be greater than 0"
             );
+
             etQuantity.requestFocus();
+
             return;
         }
 
         // EDIT MODE
         if (ingredientId != -1) {
 
-            Ingredient ingredient = new Ingredient(
-                    ingredientId,
-                    name,
-                    quantity,
-                    unit,
-                    expiryDate
-            );
+            Ingredient ingredient =
+                    new Ingredient(
+                            ingredientId,
+                            name,
+                            quantity,
+                            unit,
+                            expiryDate
+                    );
 
             int result =
                     databaseHelper.updateIngredient(
@@ -168,18 +290,18 @@ public class AddEditIngredientActivity extends AppCompatActivity {
                         Toast.LENGTH_SHORT
                 ).show();
             }
-
         }
 
         // ADD MODE
         else {
 
-            Ingredient ingredient = new Ingredient(
-                    name,
-                    quantity,
-                    unit,
-                    expiryDate
-            );
+            Ingredient ingredient =
+                    new Ingredient(
+                            name,
+                            quantity,
+                            unit,
+                            expiryDate
+                    );
 
             long result =
                     databaseHelper.addIngredient(
