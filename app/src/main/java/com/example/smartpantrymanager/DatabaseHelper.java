@@ -955,124 +955,74 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 // STRICT RECIPE MATCHING
 // =========================
 
+    /**
+     * Returns only recipes for which every required ingredient exists in the
+     * pantry in at least the required quantity. Compatible units are converted
+     * before comparison (for example 1 kg can satisfy a 500 g requirement).
+     * Duplicate pantry rows for the same ingredient are added together.
+     */
     public List<Recipe> getSuggestedRecipes() {
 
-        List<Recipe> suggestedRecipes =
-                new ArrayList<>();
-
-        List<Recipe> allRecipes =
-                getAllRecipes();
-
-        List<Ingredient> pantryItems =
-                getAllIngredients();
+        List<Recipe> suggestedRecipes = new ArrayList<>();
+        List<Recipe> allRecipes = getAllRecipes();
+        List<Ingredient> pantryItems = getAllIngredients();
 
         for (Recipe recipe : allRecipes) {
 
             List<RecipeIngredient> requiredIngredients =
-                    getRecipeIngredients(
-                            recipe.getId()
-                    );
+                    getRecipeIngredients(recipe.getId());
 
             boolean canMakeRecipe = true;
 
-            for (
-                    RecipeIngredient required :
-                    requiredIngredients
-            ) {
+            for (RecipeIngredient required : requiredIngredients) {
 
-                boolean ingredientFound = false;
+                String requiredName =
+                        MatchingUtils.normalizeIngredientName(
+                                required.getIngredientName()
+                        );
 
-                for (
-                        Ingredient pantry :
-                        pantryItems
-                ) {
+                MatchingUtils.UnitAmount requiredAmount =
+                        MatchingUtils.toBaseUnit(
+                                required.getQuantity(),
+                                required.getUnit()
+                        );
+
+                double availableQuantity = 0.0;
+
+                for (Ingredient pantry : pantryItems) {
 
                     String pantryName =
-                            normalizeIngredientName(
+                            MatchingUtils.normalizeIngredientName(
                                     pantry.getName()
                             );
 
-                    String requiredName =
-                            normalizeIngredientName(
-                                    required.getIngredientName()
+                    if (!pantryName.equals(requiredName)) {
+                        continue;
+                    }
+
+                    MatchingUtils.UnitAmount pantryAmount =
+                            MatchingUtils.toBaseUnit(
+                                    pantry.getQuantity(),
+                                    pantry.getUnit()
                             );
 
-                    if (
-                            pantryName.equals(
-                                    requiredName
-                            )
-                    ) {
-
-                        if (
-                                pantry.getQuantity()
-                                        >=
-                                        required.getQuantity()
-                        ) {
-
-                            ingredientFound = true;
-                            break;
-                        }
+                    // Only quantities from compatible unit families can be combined.
+                    if (pantryAmount.getFamily().equals(requiredAmount.getFamily())) {
+                        availableQuantity += pantryAmount.getQuantity();
                     }
                 }
 
-                if (!ingredientFound) {
-
+                if (availableQuantity + 0.0001 < requiredAmount.getQuantity()) {
                     canMakeRecipe = false;
                     break;
                 }
             }
 
             if (canMakeRecipe) {
-
-                suggestedRecipes.add(
-                        recipe
-                );
+                suggestedRecipes.add(recipe);
             }
         }
 
         return suggestedRecipes;
-    }
-    // =========================
-// NORMALISE INGREDIENT NAMES
-// =========================
-
-    private String normalizeIngredientName(
-            String name
-    ) {
-
-        if (name == null) {
-            return "";
-        }
-
-        String normalized =
-                name.trim()
-                        .toLowerCase();
-
-        if (
-                normalized.endsWith("es")
-                        &&
-                        normalized.length() > 3
-        ) {
-
-            normalized =
-                    normalized.substring(
-                            0,
-                            normalized.length() - 2
-                    );
-
-        } else if (
-                normalized.endsWith("s")
-                        &&
-                        normalized.length() > 2
-        ) {
-
-            normalized =
-                    normalized.substring(
-                            0,
-                            normalized.length() - 1
-                    );
-        }
-
-        return normalized;
     }
 }

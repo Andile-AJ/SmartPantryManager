@@ -115,6 +115,10 @@ public class AddEditIngredientActivity extends AppCompatActivity {
         btnSaveIngredient.setOnClickListener(
                 v -> saveIngredient()
         );
+
+        findViewById(R.id.btnCancel).setOnClickListener(
+                v -> finish()
+        );
     }
 
     private void showDatePicker() {

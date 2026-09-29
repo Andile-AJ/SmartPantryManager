@@ -13,3 +13,7 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# JVM crash/replay logs generated when Android Studio or Gradle runs out of memory
+hs_err_pid*.log
+replay_pid*.log
