@@ -1,189 +1,129 @@
 # Smart Pantry Manager
 
-## Overview
+Smart Pantry Manager is a Java Android application developed for the Mobile App Development 700 practical assignment.
 
-Smart Pantry Manager is a Java-based Android application developed for the Mobile App Development 700 practical assignment.
+The purpose of the application is to help users reduce food waste by keeping track of ingredients they already have at home and suggesting recipes that can be prepared using only those available ingredients.
 
-The purpose of the application is to help users reduce food waste by keeping track of ingredients available in their pantry and suggesting recipes that can be prepared using only those ingredients.
-
-A recipe is only suggested when every required ingredient is available in the user's pantry in a sufficient quantity.
+The app follows a strict recipe-matching rule: a recipe is only suggested when every required ingredient is available in the pantry in sufficient quantity.
 
 ## Main Features
 
-- Add pantry ingredients
-- View pantry ingredients
-- Edit pantry ingredients
+- Add new pantry ingredients
+- View all pantry ingredients
+- Edit existing pantry ingredients
 - Delete pantry ingredients
-- Store ingredient quantity and unit
-- Store an optional expiry date
+- Store ingredient name, quantity, unit, and optional expiry date
 - Display pantry items using a RecyclerView
-- Store recipes in the application database
-- Preload 20 recipes
-- Suggest recipes based on pantry contents
+- Suggest recipes based on current pantry contents
 - Strict recipe matching
-- Display recipe details
-- Display recipe ingredients and preparation instructions
+- Recipe detail screen with ingredients and preparation steps
 - Settings screen
 - Input validation
-- Persistent local data storage
-- Persistent settings using SharedPreferences
-- Expiry-soon and expired ingredient warnings
-- Calender date picker for ingredient expiry dates
-
-## Strict Recipe Matching
-
-The Smart Pantry Manager follows a strict matching rule.
-
-A recipe is only shown in the Suggested Recipes screen when all the ingredients required by the recipe are available in the pantry in at least the required quantities.
-
-For example, if a recipe requires:
-
-- 2 eggs
-- 1 tomato
-- 2 slices of bread
-
-the recipe will only be suggested if the user has all three ingredients in the required quantities.
-
-Recipes with missing ingredients are not included in the main Suggested Recipes list.
-
-The application also normalises basic ingredient names to reduce simple matching problems such as singular and plural variations.
-
-## Database
-
-The application uses SQLite through `SQLiteOpenHelper`.
-
-SQLite was selected because:
-
-- it works locally on the Android device
-- no internet connection is required
-- it is suitable for a small mobile application
-- it supports persistent data storage
-- it supports full CRUD operations
-- it is straightforward to integrate with Java and Android Studio
-
-The database contains tables for:
-
-- Pantry ingredients
-- Recipes
-- Recipe ingredients
-
-The pantry table stores:
-
-- Ingredient ID
-- Ingredient name
-- Quantity
-- Unit
-- Expiry date
-
-The recipe table stores:
-
-- Recipe ID
-- Recipe name
-- Preparation instructions
-
-The recipe ingredient table stores:
-
-- Recipe ingredient ID
-- Recipe ID
-- Ingredient name
-- Required quantity
-- Unit
-
-## CRUD Functionality
-
-The application supports full CRUD functionality for pantry ingredients.
-
-### Create
-
-Users can add a new ingredient using the Add Ingredient screen.
-
-### Read
-
-All pantry ingredients are retrieved from SQLite and displayed using a RecyclerView.
-
-### Update
-
-Users can edit an existing pantry ingredient and update its details.
-
-### Delete
-
-Users can delete pantry ingredients using the Delete button. A confirmation dialog is displayed before deletion.
-
-## Application Screens
-
-The application currently includes the following screens:
-
-1. My Pantry
-2. Add/Edit Ingredient
-3. Suggested Recipes
-4. Recipe Detail
-5. Settings
-
-Navigation between screens is implemented using Android Intents.
+- Local data persistence
+- Bottom navigation between main sections
+- Feedback when no recipes match the pantry
 
 ## Technology Used
 
 - Android Studio
 - Java
-- XML
+- XML layouts
 - SQLite
 - SQLiteOpenHelper
 - RecyclerView
-- Custom RecyclerView Adapters
-- Android Intents
-- Git
-- GitHub
+- Custom Adapters
+- Intents
+- SharedPreferences
+
+## Database Choice
+
+This application uses SQLite through `SQLiteOpenHelper`.
+
+SQLite was selected because it is suitable for a small offline Android application and does not require an internet connection or external server.
+
+It also allows pantry information to remain stored after the application is closed and reopened.
+
+The database stores pantry items and recipe information.
+
+## CRUD Functionality
+
+The application supports full CRUD operations for pantry ingredients:
+
+- Create: users can add new ingredients
+- Read: users can view pantry ingredients in a list
+- Update: users can edit existing ingredients
+- Delete: users can remove ingredients
+
+## Strict Recipe Matching
+
+The strict-matching logic checks every ingredient required by a recipe.
+
+A recipe is only shown in the Suggested Recipes screen when:
+
+- every required ingredient exists in the pantry
+- the available quantity is enough
+- basic unit differences such as grams and kilograms are handled
+- simple ingredient-name differences such as singular and plural forms are handled
+
+If even one required ingredient is missing, the recipe is not displayed.
+
+## Screens
+
+The application includes the following main screens:
+
+1. Pantry List
+2. Add/Edit Ingredient
+3. Suggested Recipes
+4. Recipe Detail
+5. Settings
 
 ## Project Structure
 
-Important Java classes include:
+Important classes include:
 
 - `MainActivity.java`
 - `AddEditIngredientActivity.java`
-- `SuggestedRecipeActivity.java`
+- `SuggestedRecipesActivity.java`
 - `RecipeDetailActivity.java`
 - `SettingsActivity.java`
 - `DatabaseHelper.java`
-- `Ingredient.java`
 - `IngredientAdapter.java`
-- `Recipe.java`
-- `RecipeIngredient.java`
 - `RecipeAdapter.java`
+- `MatchingUtils.java`
 
-## Setup and Run Instructions
+## How to Run the Project
 
-1. Install Android Studio.
-2. Clone or download this repository.
-3. Open the project in Android Studio.
-4. Allow Gradle to sync and download any required dependencies.
-5. Make sure an Android SDK is installed.
-6. Use Android API 34 or another compatible Android version.
-7. Create or select an Android virtual device.
-8. Build the project.
-9. Run the application on the emulator or a compatible Android device.
+1. Download or clone the repository.
+2. Open Android Studio.
+3. Select **Open**.
+4. Select the Smart Pantry Manager project folder.
+5. Allow Gradle to sync.
+6. Click **Build > Assemble Project** to confirm the project builds successfully.
+7. Start an Android emulator or connect a physical Android device.
+8. Click **Run** to launch the application.
 
-To build from the command line on Windows:
+## Low-RAM Computer Note
 
-```powershell
-.\gradlew.bat assembleDebug
+On computers with limited memory, such as 4 GB RAM, the Android emulator may be slow.
 
-A successful build should display:
-BUILD SUCCESSFUL
+If necessary:
 
-Development Status
-Current implemented functionality includes:
-- Pantry management
-- SQLite database
-- CRUD operations
-- Input validation
-- Recipe database
-- 20 seeded recipes
-- Strict recipe matching logic
-- Suggested Recipes screen
-- Recipe Detail screen
-- Settings screen
-Further testing and UI improvements will continue during development.
-Assignment
-Module: Mobile App Development 700
-Project: Smart Pantry Manager
-Application Type: Java Android Application
+- close other applications
+- use a lightweight virtual device
+- reduce emulator RAM
+- build the project before launching the emulator
+
+## Example Strict-Matching Test
+
+Add the following pantry items:
+
+- Bread: 2 pieces
+- Tomato: 1 piece
+
+A recipe requiring bread and tomato should appear in Suggested Recipes.
+
+If the tomato is deleted, that recipe should disappear because the strict-matching rule is no longer satisfied.
+
+## Purpose
+
+The main goal of Smart Pantry Manager is to reduce unnecessary food waste by helping users make better use of ingredients they already have available.
